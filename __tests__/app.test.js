@@ -28,33 +28,72 @@ describe('app routes', () => {
       return client.end(done);
     });
 
-    test('returns animals', async() => {
+    test('create todo', async() => {
 
       const expectation = [
         {
-          'id': 1,
-          'name': 'bessie',
-          'cool_factor': 3,
-          'owner_id': 1
-        },
+          id: 2,
+          todo: 'get milk',
+          completed: false,
+          owner_id: 2
+        }
+      ];
+      await fakeRequest(app)
+        .post('/api/todos')
+        .send(expectation)
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+      const data = await fakeRequest(app)
+        .get('/api/todos')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      expect(data.body).toEqual(expectation);
+    });
+
+    test('get todos', async() => {
+      const expectation = [
         {
-          'id': 2,
-          'name': 'jumpy',
-          'cool_factor': 4,
-          'owner_id': 1
-        },
-        {
-          'id': 3,
-          'name': 'spot',
-          'cool_factor': 10,
-          'owner_id': 1
+          id: 2,
+          todo: 'get milk',
+          completed: false,
+          owner_id: 2
         }
       ];
 
       const data = await fakeRequest(app)
-        .get('/animals')
+        .get('/api/todos')
+        .set('Authorization', token)
         .expect('Content-Type', /json/)
         .expect(200);
+
+      expect(data.body).toEqual(expectation);
+    });
+
+    test('update todos', async() => {
+      const expectation = [
+        {
+          id: 2,
+          todo: 'get milk',
+          completed: true,
+          owner_id: 2
+        }
+      ];
+
+      await fakeRequest(app)
+        .put('/api/todos/2')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
+      const data = await fakeRequest(app)
+        .get('/api/todos')
+        .set('Authorization', token)
+        .expect('Content-Type', /json/)
+        .expect(200);
+
 
       expect(data.body).toEqual(expectation);
     });
